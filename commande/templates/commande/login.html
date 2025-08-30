@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #7e0505, white);
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .login-container h1 { color: #7e0505; margin-bottom: 30px; }
+        .login-container input, .login-container button {
+            width: 100%; padding: 10px; margin: 10px 0;
+            border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box;
+        }
+        .login-container button {
+            background: #7e0505; color: white; border: none; cursor: pointer;
+        }
+        .login-container button:hover { background-color: #a00a0a; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Connexion</h1>
+        <form id="loginForm">
+            {% csrf_token %}
+            <input id="username" type="text" name="username" placeholder="Nom d'utilisateur" required>
+            <input id="password" type="password" name="password" placeholder="Mot de passe" required>
+            <button type="submit">Se connecter</button>
+        </form>
+        <div id="messages"></div>
+        <a href="#">Mot de passe oublié ?</a>
+    </div>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const messagesDiv = document.getElementById("messages");
+
+        form.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+
+            try {
+                const response = await fetch('/api/token/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(csrfToken && { 'X-CSRFToken': csrfToken })
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access', data.access);
+                    localStorage.setItem('refresh', data.refresh);
+
+                    // Redirige vers dashboard
+                    window.location.href = '/form/';
+                } else {
+                    const errorData = await response.json();
+                    messagesDiv.innerHTML = `<p class="error">Échec de la connexion : ${errorData.detail || 'Identifiants incorrects'}</p>`;
+                }
+            } catch (error) {
+                messagesDiv.innerHTML = `<p class="error">Erreur : ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

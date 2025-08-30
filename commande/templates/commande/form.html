@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>form</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #7e0505, white);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        .form-container h1 {
+            margin-bottom: 30px;
+            color: #7e0505;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* espace entre les boutons */
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #7e0505;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .form-container button:hover {
+            background-color: #a00a0a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Bienvenue 👋</h1>
+
+        <div class="btn-group">
+            <form action="{% url 'dashboard' %}" method="get">
+                <button type="submit">📊 Dashboard</button>
+            </form>
+
+            <form action="{% url 'products' %}" method="get">
+                <button type="submit">📦 Gestion des produits</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

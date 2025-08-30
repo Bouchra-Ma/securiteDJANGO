@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Produits</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #7e0505;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+
+        .navbar a:hover {
+            opacity: 0.7;
+        }
+
+        /* Container principal */
+        .container {
+            padding: 30px;
+        }
+
+        .container h2 {
+            color: #7e0505;
+            margin-bottom: 20px;
+        }
+
+        /* Bouton ajouter */
+        .add-btn {
+            background: #7e0505;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .add-btn:hover {
+            background: #a00a0a;
+        }
+
+        /* Tableau */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #7e0505;
+            color: white;
+            font-size: 15px;
+        }
+
+        tr:hover {
+            background-color: #f9ecec;
+        }
+
+        /* Boutons d’action */
+        .action-btn {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: background 0.3s;
+        }
+
+        .edit-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #0056b3;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #a71d2a;
+        }
+
+        /* Styles pour les messages */
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>Gestion des Produits</h1>
+        <div>
+            <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
+            <a href="{% url 'products' %}">📦 Produits</a>
+            <a href="/login/">🚪 Déconnexion</a>
+        </div>
+    </div>
+
+    <!-- Contenu -->
+    <div class="container">
+        <h2>📦 Liste des Produits</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        
+
+        <!-- Tableau des produits -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Ref</th>
+                    <th>Nom</th>
+                    <th>Prix</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produit in produits %}
+                    <tr>
+                        <td>{{ produit.reference }}</td>
+                        <td>{{ produit.nom }}</td>
+                        <td>{{ produit.prix }} €</td>
+                        <td>{{ produit.quantite }}</td>
+                        <td>
+                        <button class="action-btn" onclick="buyProduct('{{ produit.id }}')">Acheter</button>
+                    </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align:center;">Aucun produit trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+<script>
+function buyProduct(productId) {
+    const token = localStorage.getItem('access'); // Vérifiez la clé du token
+    if (!token) {
+        alert("Vous devez être connecté !");
+        window.location.href = "/login/";
+        return;
+    }
+
+    const button = document.getElementById(`buy-btn-${productId}`);
+    button.disabled = true; // Désactiver le bouton pour éviter les doubles clics
+
+    fetch(`/buy_product/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(res => {
+        if (!res.ok) {
+            // Vérifier si la réponse est du HTML (indique une redirection ou erreur)
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('text/html')) {
+                throw new Error('Erreur d\'authentification : redirection vers une page HTML');
+            }
+            return res.text().then(text => {
+                throw new Error(`Erreur ${res.status}: ${text || 'Token manquant ou invalide'}`);
+            });
+        }
+        return res.text(); // Réponse texte pour les succès (200)
+    })
+    .then(msg => {
+        alert(msg || "Produit acheté avec succès !");
+        window.location.reload(true); // Forcer le rechargement sans cache
+    })
+    .catch(err => {
+        console.error(err);
+        alert(err.message);
+        if (err.message.includes('401') || err.message.includes('403') || err.message.includes('authentification')) {
+            window.location.href = "/login/";
+        }
+        button.disabled = false; // Réactiver le bouton en cas d'erreur
+    });
+}
+</script>
+
+
+</body>
+
+</html>
