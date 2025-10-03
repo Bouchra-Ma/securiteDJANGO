@@ -38,4 +38,10 @@ urlpatterns = [
      # --- tes APIs JWT ---
     path('api/dashboard/', views.api_dashboard, name='api_dashboard'),
     path('api/products/', views.api_products, name='api_products'),
+     path("cart/", views.cart_detail, name="cart_detail"),
+    path("cart/add/<int:product_id>/", views.cart_add, name="cart_add"),
+    path("cart/remove/<int:product_id>/", views.cart_remove, name="cart_remove"),
+    path('api/notifications/', views.api_notifications, name='api_notifications'),
+   path('api/alerts/<int:product_id>/', views.subscribe_stock_alert, name='subscribe_stock_alert')
+
 ]

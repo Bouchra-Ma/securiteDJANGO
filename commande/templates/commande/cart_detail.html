@@ -1,0 +1,143 @@
+<!-- templates/commande/cart_detail.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Panier</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #7e0505;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header .cart-icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        table th {
+            background-color: #f0f0f0;
+        }
+
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+
+        .total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .empty-cart {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        .product-img {
+            width: 80px;
+            height: auto;
+            border-radius: 5px;
+        }
+    </style>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <h1>Mon Panier</h1>
+        <div class="cart-icon">
+            <i class="fas fa-shopping-cart"></i> {{ cart|length }}
+        </div>
+    </header>
+
+    <div class="container">
+        {% if cart %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product_id, item in cart.items %}
+                <tr>
+                    <td>
+                        {% if item.image_url %}
+                        <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="product-img">
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.prix }} €</td>
+                    <td>{{ item.total_price }} €</td>
+                    <td>
+                        <a class="btn-remove" href="{% url 'cart_remove' product_id %}">Supprimer</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p class="total">Total : {{ total_price }} €</p>
+        {% else %}
+        <p class="empty-cart">Ton panier est vide 🛒</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+

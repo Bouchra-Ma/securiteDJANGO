@@ -140,7 +140,9 @@
         <div>
             <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
             <a href="{% url 'products' %}">📦 Produits</a>
+            <a href="/cart/">🛒 Mon panier</a>
             <a href="/login/">🚪 Déconnexion</a>
+            
         </div>
     </div>
 
@@ -173,7 +175,10 @@
                         <td>{{ produit.prix }} €</td>
                         <td>{{ produit.quantite }}</td>
                         <td>
-                        <button class="action-btn" onclick="buyProduct('{{ produit.id }}')">Acheter</button>
+                        <form action="{% url 'cart_add' produit.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="action-btn">Acheter</button>
+</form>
                     </td>
                     </tr>
                 {% empty %}

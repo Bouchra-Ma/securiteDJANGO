@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from google.oauth2 import service_account
+import os 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,7 +44,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt', 
     'commande',
     'djoser',
-    'debug_toolbar',
+    #'debug_toolbar',
+    'storages',
+     'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -53,7 +57,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'securite.urls'
@@ -118,6 +123,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+CART_SESSION_ID = "cart"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -185,3 +191,41 @@ SIMPLE_JWT = {
 LOGIN_URL = '/login/'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Ferme la session à la fermeture du navigateur
 SESSION_COOKIE_AGE = 1200 
+
+# STORAGES = {
+#     'default': {
+#         'BACKEND': 'storages.backends.gcloud.GoogleCloudStorage',
+#     },
+#     'staticfiles': {
+#         'BACKEND': 'storages.backends.gcloud.GoogleCloudStorage',
+#     },
+# }
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+
+
+
+# Chemin vers ton fichier JSON
+GS_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials', 'gestion-image.json')
+
+# Utiliser ce fichier pour l'authentification Google Cloud
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(GS_CREDENTIALS_PATH)
+
+# Nom de ton bucket
+GS_BUCKET_NAME = 'django-gema-decouverte'  
+
+# Storage par défaut pour les fichiers media
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+# Broker et résultat
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour tests
+DEFAULT_FROM_EMAIL = 'noreply@monsite.com'
+
+
+
